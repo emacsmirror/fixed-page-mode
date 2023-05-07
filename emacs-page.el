@@ -1,6 +1,6 @@
 ;; A page-based text editing/note taking/concept thinking.
-;; acts funny with org mode and M-RET
 
+;; defcustom?
 (make-variable-buffer-local
  (defvar page-length 24
        "Page length, in lines"))
@@ -14,6 +14,13 @@
 (defun page-number ()
   "Returns a page number, counting from 0."
   (/ (1- (line-number-at-pos)) page-length))
+
+
+(defun page-count-lines ()
+  "Count lines on the current page."
+  (if (buffer-narrowed-p) ;; ugly hack, if there is no narrowing report page-length
+      (count-lines (point-min) (point-max))
+    page-length))
 
 
 (defun page-next (&optional reverse)
@@ -36,8 +43,7 @@ Page length is defined by page-length variable."
 (defun page-length-compensate ()
   "Check if current page is of page-length.
 If not add newlines at the end."
-  (let ((lines-to-add (- page-length (count-lines (point-min) (point-max)))))
-    (message "lines missing: %d" lines-to-add)
+  (let ((lines-to-add (- page-length (page-count-lines))))
     (when lines-to-add
       (save-excursion
 	(end-of-buffer)
@@ -75,31 +81,17 @@ If not add newlines at the end."
     (forward-line (- lines))
     (delete-region (point) (point-max))))
 
-;; there is a problem with org-mode cache that is not being updated properly
-;; it can be suppressed with:
-;;(setq warning-suppress-types (append warning-suppress-types '((org-element-cache))))
-;; or cache can be disable with
-;;(setq org-element-use-cache nil)
-;; but it does not solve the problem
-;; FIXME: change to a before-change-functions. hook - it might help
-;; example: https://www.emacswiki.org/emacs/ChangeHook
-;; or maybe use just (undo) - bad idea, uno/redo loop
+
 (defun page-mode-prevent-too-long-page (beg end len)
   "after-change-functions hook to control page length."
-  (message "%d %d %d" beg end len)
   (when (not undo-in-progress)
-    (let* ((lines (count-lines (point-min) (point-max)))
-	   (stuff-lines (- lines (1- (page-mode-empty-lines-at-end)))))
+    (let* ((lines (page-count-lines)) 
+	   (stuff-lines (- lines (1- (page-mode-empty-lines-at-end))))) ;; # lines that are not empty at the end
       (if (<= lines page-length)
 	  (page-length-compensate)
 	(if (<= stuff-lines page-length)
 	    (page-mode-remove-lines-from-end (- lines page-length))
-	  (message "Edit violates maximum page length of %d." page-length)
-	  (kill-region beg end)
-	  )))
-;;    (org-element--cache-sync (current-buffer))
-    ))
-
+	  (kill-region beg end))))))
 
 
 (define-minor-mode page-mode
@@ -112,6 +104,7 @@ Edit text page by page."
             map)
   (if (bound-and-true-p page-mode)
       (progn
+	(setq org-element-use-cache nil) ;; WORKAROUND with org mode cache, otherwise org mode reports warnings
 	(add-hook 'after-change-functions #'page-mode-prevent-too-long-page 0 1)
 	(setq mode-line-format (append mode-line-format '(page-number-modeline))) ;; FIXME: see how pdf-tools does it
 	(page-narrow))
