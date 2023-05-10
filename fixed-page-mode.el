@@ -1,6 +1,6 @@
 ;;; fixed-page-mode.el --- A fixed page length mode  -*- lexical-binding:t -*-
 
-;; Copyright (C) 2008-2023 The Magit Project Contributors
+;; Copyright (C) 2022-2023 Igor Wojnicki
 
 ;; Author: Igor Wojnicki <wojnicki@gmail.com>
 ;; Version: 1.0
@@ -18,14 +18,15 @@
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 ;; General Public License for more details.
 ;;
-;; You should have received a copy of the GNU General Public License
-;; along with Magit.  If not, see <https://www.gnu.org/licenses/>.
+;; You should have received a copy of the GNU General Public
+;; License. If not, see <https://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 
-;;; A page-based text editing/note taking/concept thinking.
-;;; Presents buffer's content as pages of predefined number of lines (50 by default).
-;;; It is an analog of pages in a notebook. Can be used with org mode.
+;;; A page-based text editing/note taking/concept thinking Emacs minor
+;;; mode.  Presents buffer's content as pages of predefined number of
+;;; lines (50 by default).  It is an analog of pages in a notebook. It
+;;; can be used with org mode or any other text mode.
 
 ;;; Code:
 
@@ -41,9 +42,8 @@
 
 (make-variable-buffer-local 'fixed-page-length)
 
-(make-variable-buffer-local
- (defvar fixed-page-number-modeline ""
-   "Modeline page number indicator"))
+(defvar-local fixed-page-number-mode-line " FP"
+   "Modeline page number indicator")
 
 (defvar org-element-use-cache)
 
@@ -96,12 +96,13 @@ If not add newlines at the end."
       ;; Go to a begining of current page.
 	(goto-char (point-min))
 	(forward-line (* fixed-page-number-value fixed-page-length))
-	(setq fixed-page-number-modeline (format "Pg: %d" fixed-page-number-value)))
+	(setq fixed-page-number-mode-line (format " FP(%d)" fixed-page-number-value)))
       ;; Narrow
       (narrow-to-region (point)
 			(progn
 			  (forward-line fixed-page-length)
-			  (point)))))
+			  (point))))
+    (goto-char (point-min)))
 
 (defun fixed-page-mode-remove-lines-from-end (lines)
   "Remove lines from the end of buffer."
@@ -125,7 +126,7 @@ If not add newlines at the end."
 (define-minor-mode fixed-page-mode
   "A page-based text editing/note taking/concept thinking.
 Edit text page by page."
-  :lighter " FP"
+  :lighter fixed-page-number-mode-line
   :group 'fixed-page
   :keymap (let ((map (make-sparse-keymap)))
             (define-key map (kbd "<next>") 'fixed-page-next)
@@ -136,10 +137,8 @@ Edit text page by page."
 	(when (require 'org nil 'noerror)
 	  (setq org-element-use-cache nil)) ;; WORKAROUND with org mode cache, otherwise org mode reports warnings
 	(add-hook 'after-change-functions #'fixed-page-mode-prevent-too-long-page 0 1)
-	(setq mode-line-format (append mode-line-format '(fixed-page-number-modeline))) ;; FIXME: there might be a better way to do this, see how pdf-tools does it?
 	(fixed-page-narrow))
     (remove-hook 'after-change-functions #'fixed-page-mode-prevent-too-long-page 1)
-    (nbutlast mode-line-format)
     (widen)))
 
 (provide 'fixed-page-mode)
