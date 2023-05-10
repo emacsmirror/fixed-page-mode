@@ -72,6 +72,20 @@ Page length is defined by fixed-page-length variable."
   (interactive)
   (fixed-page-next 1))
 
+(defun fixed-page-isearch-forward ()
+  "isearch forward the buffer."
+  (interactive)
+  (widen)
+  (isearch-forward)
+  (fixed-page-narrow))
+
+(defun fixed-page-isearch-backward ()
+  "isearch the buffer backward."
+  (interactive)
+  (widen)
+  (isearch-backward)
+  (fixed-page-narrow))
+
 (defun fixed-page-goto-page (page-number)
   "Jump to the given page."
   (interactive "nGo to page number:")
@@ -122,8 +136,9 @@ If not add newlines at the end."
 (defun fixed-page--mode-prevent-too-long-page (beg end _len)
   "after-change-functions hook to control page length."
   (when (not undo-in-progress)
-    (let* ((lines (fixed-page-count-lines)) 
-	   (stuff-lines (- lines (1- (fixed-page-mode-empty-lines-at-end))))) ;; # lines that are not empty at the end
+    (let* ((lines (fixed-page-count-lines))
+	   ;; number of lines that are not empty at the end
+	   (stuff-lines (- lines (1- (fixed-page-mode-empty-lines-at-end)))))
       (if (<= lines fixed-page-length)
 	  (fixed-page--length-compensate)
 	(if (<= stuff-lines fixed-page-length)
@@ -139,6 +154,8 @@ Edit text page by page."
   :keymap (let ((map (make-sparse-keymap)))
             (define-key map (kbd "<next>") 'fixed-page-next)
             (define-key map (kbd "<prior>") 'fixed-page-prev)	    
+            (define-key map (kbd "C-s") 'fixed-page-isearch-forward)
+            (define-key map (kbd "C-r") 'fixed-page-isearch-backward)
             map)
   (if (bound-and-true-p fixed-page-mode)
       (progn

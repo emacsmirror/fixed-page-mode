@@ -1,0 +1,46 @@
+* fixed-page-mode
+
+A fixed page length mode for [[https://www.gnu.org/software/emacs/][Emacs]].
+
+A page-based text editing/note taking/concept thinking [[https://www.gnu.org/software/emacs/][Emacs]] minor mode.
+Presents buffer content as pages of predefined number of lines (50 by default).
+It is an analog of pages in a paper notebook.
+It can be used with org mode or any other text mode.
+
+* Motivation
+
+I found out that while making notes or doing research on paper, a concept of page is very helpful in the process.
+I tend to memorize what I wrote and where it was on the page, either in the middle of it, in a corner, at bottom etc.
+This makes it easier to recall it and also reconnect back to what I was thinking while writing it down.
+
+Trying to document my research, and concept thinking, with fabulous [[https://orgmode.org/][org-mode]] works half way through, since the text is vertically scrollable.
+The concept of a page is not directly available there.
+
+Why not to change it and provide such a fixed-page facility on top of any text file?
+
+* What is it about?
+
+This is a minor mode for [[https://www.gnu.org/software/emacs/][Emacs]] which turns on pagination for current buffer.
+It should work with a text mode (or org-mode).
+
+Instead of continuous up/down text scrolling it divides the text in the buffer into fixed length pages.
+Using PgUp (~<next>~) and PgDown (~<prior>~) by default turns the page up and down.
+
+If you remove a line a blank line is added at the end of the current page.
+
+Incremental search is cross-page and bound to ~C-s~ and ~C-r~ for forward and backward search respectively.
+
+The page length is configurable with ~fixed-page-length~ variable and set to 50 by default.
+You can alter it via [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Easy-Customization.html][Emacs customization facility]] or set it directly to a desired value:
+
+#+begin_src elisp
+(setq fixed-page-length 50)
+#+end_src
+
+The mode is non-destructive to the edited file, it will not have any additional characters or marks added identifying the page split, hence you can use it with any text format, including [[https://orgmode.org/][org-mode]], [[https://www.markdownguide.org/][Markdown]] or programming languages.
+
+
+* License
+
+GNU General Public License 3.0.
+
