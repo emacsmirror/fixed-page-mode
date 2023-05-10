@@ -72,7 +72,15 @@ Page length is defined by fixed-page-length variable."
   (interactive)
   (fixed-page-next 1))
 
-(defun fixed-page-length-compensate ()
+(defun fixed-page-goto-page (page-number)
+  "Jump to the given page."
+  (interactive "nGo to page number:")
+  (widen)
+  (goto-char 1)
+  (forward-line (* page-number fixed-page-length))
+  (fixed-page-narrow))
+
+(defun fixed-page--length-compensate ()
   "Check if current page is of fixed-page-length.
 If not add newlines at the end."
   (let ((lines-to-add (- fixed-page-length (fixed-page-count-lines))))
@@ -111,13 +119,13 @@ If not add newlines at the end."
     (forward-line (- lines))
     (delete-region (point) (point-max))))
 
-(defun fixed-page-mode-prevent-too-long-page (beg end _len)
+(defun fixed-page--mode-prevent-too-long-page (beg end _len)
   "after-change-functions hook to control page length."
   (when (not undo-in-progress)
     (let* ((lines (fixed-page-count-lines)) 
 	   (stuff-lines (- lines (1- (fixed-page-mode-empty-lines-at-end))))) ;; # lines that are not empty at the end
       (if (<= lines fixed-page-length)
-	  (fixed-page-length-compensate)
+	  (fixed-page--length-compensate)
 	(if (<= stuff-lines fixed-page-length)
 	    (fixed-page-mode-remove-lines-from-end (- lines fixed-page-length))
 	  (kill-region beg end))))))
@@ -136,9 +144,9 @@ Edit text page by page."
       (progn
 	(when (require 'org nil 'noerror)
 	  (setq org-element-use-cache nil)) ;; WORKAROUND with org mode cache, otherwise org mode reports warnings
-	(add-hook 'after-change-functions #'fixed-page-mode-prevent-too-long-page 0 1)
+	(add-hook 'after-change-functions #'fixed-page--mode-prevent-too-long-page 0 1)
 	(fixed-page-narrow))
-    (remove-hook 'after-change-functions #'fixed-page-mode-prevent-too-long-page 1)
+    (remove-hook 'after-change-functions #'fixed-page--mode-prevent-too-long-page 1)
     (widen)))
 
 (provide 'fixed-page-mode)
