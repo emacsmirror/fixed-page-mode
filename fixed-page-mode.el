@@ -3,8 +3,10 @@
 ;; Copyright (C) 2022-2023 Igor Wojnicki
 
 ;; Author: Igor Wojnicki <wojnicki@gmail.com>
+;; URL: https://gitlab.com/igorwojnicki/fixed-page-mode
 ;; Version: 1.0
-;; Keywords: text, page
+;; Package-Requires: ((emacs "24.3"))
+;; Keywords: wp
 
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 
