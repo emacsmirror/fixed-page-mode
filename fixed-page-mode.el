@@ -25,7 +25,7 @@
 
 ;;; A page-based text editing/note taking/concept thinking Emacs minor
 ;;; mode.  Presents buffer's content as pages of predefined number of
-;;; lines (50 by default).  It is an analog of pages in a notebook. It
+;;; lines (50 by default).  It is an analog of pages in a notebook.  It
 ;;; can be used with org mode or any other text mode.
 
 ;;; Code:
@@ -37,7 +37,7 @@
   :prefix "fixed-page")
 
 (defcustom fixed-page-length 50
-  "Page length, in lines"
+  "Page length, in lines."
   :type 'integer)
 
 (make-variable-buffer-local 'fixed-page-length)
@@ -48,7 +48,7 @@
 (defvar org-element-use-cache)
 
 (defun fixed-page-number ()
-  "Returns a page number, counting from 0."
+  "Return a page number, counting from 0."
   (/ (1- (line-number-at-pos)) fixed-page-length))
 
 (defun fixed-page-count-lines ()
@@ -58,8 +58,8 @@
     fixed-page-length))
 
 (defun fixed-page-next (&optional reverse)
-  "Jumps to next page.
-If reverse is not null jumps to a previous page.
+  "Jump to the next page.
+If REVERSE is not null jumps to a previous page.
 Page length is defined by fixed-page-length variable."
   (interactive)
   (setq reverse (if reverse -1 1))
@@ -73,21 +73,21 @@ Page length is defined by fixed-page-length variable."
   (fixed-page-next 1))
 
 (defun fixed-page-isearch-forward ()
-  "isearch forward the buffer."
+  "Isearch forward the buffer."
   (interactive)
   (widen)
   (isearch-forward)
   (fixed-page-narrow))
 
 (defun fixed-page-isearch-backward ()
-  "isearch the buffer backward."
+  "Isearch the buffer backward."
   (interactive)
   (widen)
   (isearch-backward)
   (fixed-page-narrow))
 
 (defun fixed-page-goto-page (page-number)
-  "Jump to the given page."
+  "Jump to the given PAGE-NUMBER."
   (interactive "nGo to page number:")
   (widen)
   (goto-char 1)
@@ -127,14 +127,15 @@ If not add newlines at the end."
     (goto-char (point-min)))
 
 (defun fixed-page-mode-remove-lines-from-end (lines)
-  "Remove lines from the end of buffer."
+  "Remove number of LINES from the end of buffer."
   (save-excursion
     (goto-char (point-max))
     (forward-line (- lines))
     (delete-region (point) (point-max))))
 
 (defun fixed-page--mode-prevent-too-long-page (beg end _len)
-  "after-change-functions hook to control page length."
+  "A hook for 'after-change-functions' to control page length.
+BEG, END and _LEN are begining, end and length of the change."
   (when (not undo-in-progress)
     (let* ((lines (fixed-page-count-lines))
 	   ;; number of lines that are not empty at the end
@@ -153,7 +154,7 @@ Edit text page by page."
   :group 'fixed-page
   :keymap (let ((map (make-sparse-keymap)))
             (define-key map (kbd "<next>") 'fixed-page-next)
-            (define-key map (kbd "<prior>") 'fixed-page-prev)	    
+            (define-key map (kbd "<prior>") 'fixed-page-prev)
             (define-key map (kbd "C-s") 'fixed-page-isearch-forward)
             (define-key map (kbd "C-r") 'fixed-page-isearch-backward)
             map)
