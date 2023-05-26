@@ -67,7 +67,7 @@ Page length is defined by `fixed-page-length' variable."
   (forward-line (* n fixed-page-length))
   (fixed-page-narrow))
 
-(defalias 'fixed-page-next 'fixed-page-move)
+(defalias 'fixed-page-next #'fixed-page-move)
 
 (defun fixed-page-prev (&optional n)
   "Move N pages backward.  Move forward with negative N.
