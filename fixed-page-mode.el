@@ -25,10 +25,10 @@
 
 ;;; Commentary:
 
-;;; A page-based text editing/note taking/concept thinking Emacs minor
-;;; mode.  Presents buffer's content as pages of predefined number of
-;;; lines (50 by default).  It is an analog of pages in a notebook.  It
-;;; can be used with org mode or any other text mode.
+;; A page-based text editing/note taking/concept thinking Emacs minor
+;; mode.  Presents buffer's content as pages of predefined number of
+;; lines (50 by default).  It is an analog of pages in a notebook.  It
+;; can be used with org mode or any other text mode.
 
 ;;; Code:
 
@@ -45,7 +45,7 @@
 (make-variable-buffer-local 'fixed-page-length)
 
 (defvar-local fixed-page-number-mode-line " FP"
-   "Modeline page number indicator")
+   "Modeline page number indicator.")
 
 (defvar org-element-use-cache)
 
@@ -59,20 +59,21 @@
       (count-lines (point-min) (point-max))
     fixed-page-length))
 
-(defun fixed-page-next (&optional reverse)
-  "Jump to the next page.
-If REVERSE is not null jumps to a previous page.
-Page length is defined by fixed-page-length variable."
-  (interactive)
-  (setq reverse (if reverse -1 1))
+(defun fixed-page-move (&optional n)
+  "Move N pages.  Move backward with negative N.
+Page length is defined by `fixed-page-length' variable."
+  (interactive "p")
   (widen)
-  (forward-line (* reverse fixed-page-length))
+  (forward-line (* n fixed-page-length))
   (fixed-page-narrow))
 
-(defun fixed-page-prev ()
-  "Jumps to previous page."
-  (interactive)
-  (fixed-page-next 1))
+(defalias 'fixed-page-next 'fixed-page-move)
+
+(defun fixed-page-prev (&optional n)
+  "Move N pages backward.  Move forward with negative N.
+Page length is defined by `fixed-page-length' variable."
+  (interactive "p")
+  (fixed-page-move (* -1 n)))
 
 (defun fixed-page-isearch-forward ()
   "Isearch forward the buffer."
@@ -136,7 +137,7 @@ If not add newlines at the end."
     (delete-region (point) (point-max))))
 
 (defun fixed-page--mode-prevent-too-long-page (beg end _len)
-  "A hook for 'after-change-functions' to control page length.
+  "A hook for `after-change-functions' to control page length.
 BEG, END and _LEN are begining, end and length of the change."
   (when (not undo-in-progress)
     (let* ((lines (fixed-page-count-lines))
@@ -162,7 +163,7 @@ Edit text page by page."
             map)
   (if (bound-and-true-p fixed-page-mode)
       (progn
-	(when (require 'org nil 'noerror)
+	(when (derived-mode-p 'org-mode)
 	  (setq org-element-use-cache nil)) ;; WORKAROUND with org mode cache, otherwise org mode reports warnings
 	(add-hook 'after-change-functions #'fixed-page--mode-prevent-too-long-page 0 1)
 	(fixed-page-narrow))
