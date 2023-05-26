@@ -75,30 +75,34 @@ Page length is defined by `fixed-page-length' variable."
   (interactive "p")
   (fixed-page-move (* -1 n)))
 
+(defmacro fixed-page-with-wide-buffer (body)
+  "Execute BODY with buffer widened, then `fixed-page-narrow'."
+  `(progn
+     (widen)
+     ,@body
+     (fixed-page-narrow)))
+
 (defun fixed-page-isearch-forward ()
   "Isearch forward the buffer."
   (interactive)
-  (widen)
-  (isearch-forward)
-  (fixed-page-narrow))
+  (fixed-page-with-wide-buffer
+   ((isearch-forward))))
 
 (defun fixed-page-isearch-backward ()
   "Isearch the buffer backward."
   (interactive)
-  (widen)
-  (isearch-backward)
-  (fixed-page-narrow))
+  (fixed-page-with-wide-buffer
+   ((isearch-backward))))
 
 (defun fixed-page-goto-page (page-number)
   "Jump to the given PAGE-NUMBER."
   (interactive "nGo to page number:")
-  (widen)
-  (goto-char 1)
-  (forward-line (* page-number fixed-page-length))
-  (fixed-page-narrow))
+  (fixed-page-with-wide-buffer
+   ((goto-char 1)
+    (forward-line (* page-number fixed-page-length)))))
 
 (defun fixed-page--length-compensate ()
-  "Check if current page is of fixed-page-length.
+  "Check if current page is of `fixed-page-length'.
 If not add newlines at the end."
   (let ((lines-to-add (- fixed-page-length (fixed-page-count-lines))))
     (when lines-to-add
@@ -115,7 +119,7 @@ If not add newlines at the end."
     (count-lines (point) (point-max))))
 
 (defun fixed-page-narrow ()
-    "Narrow to current page based on fixed-page-length variable."
+    "Narrow to current page based on `fixed-page-length' variable."
     (save-excursion
       (let ((fixed-page-number-value (fixed-page-number)))
       ;; Go to a begining of current page.
