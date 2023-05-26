@@ -165,7 +165,7 @@ Edit text page by page."
             (define-key map (kbd "C-s") 'fixed-page-isearch-forward)
             (define-key map (kbd "C-r") 'fixed-page-isearch-backward)
             map)
-  (if (bound-and-true-p fixed-page-mode)
+  (if fixed-page-mode
       (progn
 	(when (derived-mode-p 'org-mode)
 	  (setq org-element-use-cache nil)) ;; WORKAROUND with org mode cache, otherwise org mode reports warnings
