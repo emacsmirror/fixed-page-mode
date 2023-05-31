@@ -1,5 +1,7 @@
 * fixed-page-mode
 
+[[https://melpa.org/#/fixed-page-mode][file:https://melpa.org/packages/fixed-page-mode-badge.svg]]
+
 A fixed page length mode for [[https://www.gnu.org/software/emacs/][Emacs]].
 
 A page-based text editing/note taking/concept thinking [[https://www.gnu.org/software/emacs/][Emacs]] minor mode.
